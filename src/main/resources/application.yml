@@ -1,7 +1,28 @@
 server:
   port: 9000
+  shutdown: graceful
 
 spring:
+  application:
+    name: identity-authorization-server
+  datasource:
+    url: jdbc:mysql://${POSTGRES_HOST:localhost}:3306/${POSTGRES_DB:identity-authorization-db}
+    username: ${POSTGRES_USER:username}
+    password: ${POSTGRES_PASSWORD:password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    sql-migration-prefix: V
+    repeatable-sql-migration-prefix: R
+    sql-migration-separator: __
+    sql-migration-suffixes: .sql
+
   security:
     oauth2:
       client:

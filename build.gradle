@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.0.0'
 	id 'io.spring.dependency-management' version '1.1.0'
+  id 'application'
 }
 
 group = 'com.mtvu'
@@ -10,6 +11,7 @@ sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
+  maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
@@ -18,12 +20,14 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
   implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
   implementation "org.springframework.boot:spring-boot-starter-jdbc"
+  implementation 'org.flywaydb:flyway-core'
+  runtimeOnly 'org.postgresql:postgresql'
   implementation "org.webjars:webjars-locator-core"
   implementation 'org.webjars:bootstrap:5.2.2'
   implementation 'org.webjars:jquery:3.6.1'
 	implementation 'org.springframework.security:spring-security-oauth2-authorization-server:1.0.0'
-	runtimeOnly "com.h2database:h2"
 
+  testRuntimeOnly "com.h2database:h2"
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.springframework.security:spring-security-test"
 	testImplementation "org.junit.jupiter:junit-jupiter"
@@ -32,4 +36,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+startScripts {
+  //  Ensure that the starting up script of different projects will have the same name
+  applicationName = 'application'
+}
+
+application {
+  mainClass = 'com.vmtu.identityauthorizationserver.IdentityAuthorizationServerApplication'
 }

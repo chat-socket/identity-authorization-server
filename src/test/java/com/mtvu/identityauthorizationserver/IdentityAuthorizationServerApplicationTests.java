@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource(properties = "spring.config.additional-location=classpath:test.yml")
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerApplicationTests {
 	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
@@ -86,7 +88,7 @@ public class IdentityAuthorizationServerApplicationTests {
 
 		HtmlElement alert = loginErrorPage.querySelector("div[role=\"alert\"]");
 		assertThat(alert).isNotNull();
-		assertThat(alert.getTextContent()).isEqualTo("Bad credentials");
+		assertThat(alert.getTextContent().strip()).isEqualTo("Invalid username or password.");
 	}
 
 	@Test
