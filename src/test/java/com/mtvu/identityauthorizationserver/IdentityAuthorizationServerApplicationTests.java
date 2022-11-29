@@ -24,6 +24,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.mtvu.identityauthorizationserver.config.DefaultDataInitializingConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -46,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:test.yml")
+@Import({DefaultDataInitializingConfig.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerApplicationTests {
 	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
@@ -67,6 +70,7 @@ public class IdentityAuthorizationServerApplicationTests {
 		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
 		this.webClient.getOptions().setRedirectEnabled(true);
 		this.webClient.getCookieManager().clearCookies();	// log out
+
 	}
 
 	@Test
