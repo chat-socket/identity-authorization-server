@@ -21,6 +21,7 @@ CREATE TABLE chat_user
   full_name       VARCHAR(255),
   user_login_type VARCHAR(50)              NOT NULL,
   password        VARCHAR(255),
+  is_locked       BOOLEAN                  NOT NULL,
   avatar          VARCHAR(255),
   created_at      TIMESTAMP NOT NULL,
   CONSTRAINT pk_chat_user PRIMARY KEY (user_id)

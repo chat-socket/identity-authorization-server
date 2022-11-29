@@ -1,5 +1,8 @@
 package com.mtvu.identityauthorizationserver.config;
 
+import com.mtvu.identityauthorizationserver.model.UserLoginType;
+import com.mtvu.identityauthorizationserver.record.ChatUserDTO;
+import com.mtvu.identityauthorizationserver.service.ChatUserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -18,6 +21,9 @@ public class DefaultDataInitializingConfig {
 
     @Autowired
     private RegisteredClientRepository registeredClientRepository;
+
+    @Autowired
+    private ChatUserService chatUserService;
 
     @PostConstruct
     public void createDefaultClient() {
@@ -38,6 +44,9 @@ public class DefaultDataInitializingConfig {
             .build();
 
         registeredClientRepository.save(registeredClient);
+
+        var user = new ChatUserDTO.Request.Create("user1", "", UserLoginType.PASSWORD, "password", "");
+        chatUserService.createUser(user);
     }
 
 }

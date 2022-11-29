@@ -1,9 +1,7 @@
 package com.mtvu.identityauthorizationserver.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
@@ -13,6 +11,8 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Table(name = "chat_user")
 public class ChatUser {
 
@@ -32,6 +32,10 @@ public class ChatUser {
 
     @Column(name = "avatar")
     private String avatar;
+
+    @Builder.Default
+    @Column(name = "isLocked", columnDefinition = "boolean")
+    private boolean isLocked = false;
 
     @OneToMany(mappedBy = "chatUser")
     private Set<ChatJoinRecord> chatJoinRecords;
