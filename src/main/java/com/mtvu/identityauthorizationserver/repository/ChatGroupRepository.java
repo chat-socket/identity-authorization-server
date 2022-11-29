@@ -1,0 +1,9 @@
+package com.mtvu.identityauthorizationserver.repository;
+
+import com.mtvu.identityauthorizationserver.model.ChatGroup;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ChatGroupRepository extends CrudRepository<ChatGroup, String> {
+}
