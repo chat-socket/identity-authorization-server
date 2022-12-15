@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-authorization-server
+  labels:
+    app: identity-authorization-server
+spec:
+  selector:
+    matchLabels:
+      app: identity-authorization-server
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: identity-authorization-server
+    spec:
+      containers:
+        - name: identity-authorization-server
+          image: 'identity-authorization-server:v1'
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_HOST
+              value: 'identity-authorization-db'
+            - name: POSTGRES_DB
+              value: "identity-authorization-db"
+            - name: POSTGRES_USER
+              value: "db_user"
+            - name: POSTGRES_PASSWORD
+              value: "should_be_from_secret"
+            - name: JAVA_OPTS
+              value: "-Xmx256m -Xms128m -Xss256k -XX:CompressedClassSpaceSize=32m -XX:-TieredCompilation"
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 10" ]
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/readiness
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - identity-authorization-server
+                topologyKey: kubernetes.io/chat-microservices
