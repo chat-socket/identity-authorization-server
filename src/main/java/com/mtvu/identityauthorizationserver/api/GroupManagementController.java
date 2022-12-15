@@ -1,6 +1,6 @@
 package com.mtvu.identityauthorizationserver.api;
 
-import com.mtvu.identityauthorizationserver.record.ChatGroupRecord;
+import com.mtvu.identityauthorizationserver.record.ChatGroupDTO;
 import com.mtvu.identityauthorizationserver.service.ChatGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +17,10 @@ public class GroupManagementController {
     private final ChatGroupService chatGroupService;
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<ChatGroupRecord> getGroup(@PathVariable("groupId") String groupId) {
+    public ResponseEntity<ChatGroupDTO.Response.Public> getGroup(@PathVariable("groupId") String groupId) {
         var group = chatGroupService.getChatGroup(groupId);
-        return group.map((x) -> ResponseEntity.ok(new ChatGroupRecord(x))).orElseGet(() -> notFound().build());
+        return group
+            .map((x) -> ResponseEntity.ok(ChatGroupDTO.Response.Public.create(x)))
+            .orElseGet(() -> notFound().build());
     }
 }
