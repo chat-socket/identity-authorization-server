@@ -7,10 +7,7 @@ import com.mtvu.identityauthorizationserver.repository.ChatUserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +17,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ChatUserService implements UserDetailsService {
+public class ChatUserService implements UserDetailsService, UserDetailsPasswordService {
 
     private ChatUserRepository chatUserRepository;
 
@@ -55,5 +52,18 @@ public class ChatUserService implements UserDetailsService {
         var currentUser = chatUser.get();
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         return new User(userId, currentUser.getPassword(), authorities);
+    }
+
+    @Override
+    public UserDetails updatePassword(UserDetails user, String newPassword) {
+        var chatUser = chatUserRepository.findById(user.getUsername());
+        if (chatUser.isEmpty()) {
+            throw new UsernameNotFoundException(user.getUsername());
+        }
+        var currentUser = chatUser.get();
+        currentUser.setPassword(passwordEncoder.encode(newPassword));
+        chatUserRepository.save(currentUser);
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return new User(user.getUsername(), currentUser.getPassword(), authorities);
     }
 }
