@@ -47,5 +47,5 @@ startScripts {
 }
 
 application {
-  mainClass = 'com.vmtu.identityauthorizationserver.IdentityAuthorizationServerApplication'
+  mainClass = 'com.mtvu.identityauthorizationserver.IdentityAuthorizationServerApplication'
 }
