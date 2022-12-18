@@ -6,6 +6,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 public enum ChatUserDTO {;
     public enum Request {;
         public record Create(@NotBlank String userId, String fullName, @NotNull UserLoginType userLoginType,

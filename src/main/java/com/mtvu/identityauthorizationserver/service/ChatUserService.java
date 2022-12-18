@@ -15,6 +15,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @Service
 @AllArgsConstructor
 public class ChatUserService implements UserDetailsService, UserDetailsPasswordService {

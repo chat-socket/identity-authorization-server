@@ -7,7 +7,7 @@ import java.util.Set;
 
 /**
  * @author mvu
- * @project websocket-server
+ * @project chat-socket
  **/
 @Data
 @ConfigurationProperties(prefix = "chat.client")

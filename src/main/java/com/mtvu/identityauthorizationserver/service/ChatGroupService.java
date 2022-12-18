@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @Service
 @AllArgsConstructor
 public class ChatGroupService {

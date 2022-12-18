@@ -15,6 +15,10 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 
 import java.util.UUID;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @TestConfiguration
 public class DefaultDataInitializingConfig {
 

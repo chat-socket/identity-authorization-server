@@ -5,6 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @Entity
 @Getter
 @Setter

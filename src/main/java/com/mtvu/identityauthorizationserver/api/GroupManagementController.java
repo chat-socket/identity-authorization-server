@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.ResponseEntity.notFound;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @AllArgsConstructor
 @RestController("/group")
 public class GroupManagementController {

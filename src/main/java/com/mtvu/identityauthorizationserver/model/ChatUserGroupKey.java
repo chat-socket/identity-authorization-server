@@ -9,6 +9,10 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @Embeddable
 @Getter
 @Setter

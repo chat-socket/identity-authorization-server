@@ -7,6 +7,10 @@ import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 public class ChatGroupDTO {
     public enum Response {;
         public record Public(@NotBlank String groupId, String name, String avatar, Set<String> participants,

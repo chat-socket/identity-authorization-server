@@ -55,6 +55,8 @@ import java.util.UUID;
 
 /**
  * @author Steve Riesenberg
+ * @author mvu
+ * @project chat-socket
  * @since 0.2.3
  */
 @Configuration(proxyBeanMethods = false)

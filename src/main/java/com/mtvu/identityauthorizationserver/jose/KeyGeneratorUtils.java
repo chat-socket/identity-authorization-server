@@ -28,6 +28,8 @@ import javax.crypto.SecretKey;
 
 /**
  * @author Joe Grandja
+ * @author mvu
+ * @project chat-socket
  * @since 0.1.0
  */
 final class KeyGeneratorUtils {

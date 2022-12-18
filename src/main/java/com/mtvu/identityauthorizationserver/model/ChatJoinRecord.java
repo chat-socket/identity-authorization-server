@@ -7,6 +7,10 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 
+/**
+ * @author mvu
+ * @project chat-socket
+ **/
 @Entity
 @Getter
 @Setter

@@ -22,12 +22,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * @author Steve Riesenberg
+ * @author mvu
+ * @project chat-socket
  * @since 0.2.3
  */
 @EnableWebSecurity
@@ -50,6 +53,7 @@ public class DefaultSecurityConfig {
 					.requestMatchers("/assets/**", "/webjars/**", "/login").permitAll()
 					.anyRequest().authenticated()
 			)
+//            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.formLogin(Customizer.withDefaults())
 			.apply(federatedIdentityConfigurer);
 		return http.build();
