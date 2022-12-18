@@ -6,9 +6,8 @@ chat:
   client:
     client-id: ${CHAT_CLIENT_ID:chat-client-id}
     client-secret: ${CHAT_CLIENT_SECRET:{noop}client-secret}
-    scope: openid, profile, message:read, message:write
+    scope: openid, profile:read, profile:write, message:read, message:write
     redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
-
 
 spring:
   application:
@@ -51,6 +50,18 @@ spring:
             user-name-attribute: email
           github:
             user-name-attribute: login
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
 
 logging:
   level:
