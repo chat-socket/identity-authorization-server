@@ -2,6 +2,14 @@ server:
   port: 9000
   shutdown: graceful
 
+chat:
+  client:
+    client-id: ${CHAT_CLIENT_ID:chat-client-id}
+    client-secret: ${CHAT_CLIENT_SECRET:{noop}client-secret}
+    scope: openid, profile, message:read, message:write
+    redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+
+
 spring:
   application:
     name: identity-authorization-server

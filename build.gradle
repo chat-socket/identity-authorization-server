@@ -28,6 +28,7 @@ dependencies {
   implementation 'org.webjars:jquery:3.6.1'
   compileOnly 'org.projectlombok:lombok'
   annotationProcessor 'org.projectlombok:lombok'
+  annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
   implementation 'org.springframework.security:spring-security-oauth2-authorization-server:1.0.0'
 
   testRuntimeOnly "com.h2database:h2"
