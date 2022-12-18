@@ -93,7 +93,7 @@ public class AuthorizationServerConfig {
 	public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate,
                                                                  ClientConfigurationProperties properties) {
         var registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        RegisteredClient registeredClient = RegisteredClient.withId("DefaultChatClient")
             .clientId(properties.getClientId())
             .clientSecret(properties.getClientSecret())
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -104,7 +104,6 @@ public class AuthorizationServerConfig {
             .scopes((x) -> x.addAll(properties.getScope()))
             .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
             .build();
-
         registeredClientRepository.save(registeredClient);
         return registeredClientRepository;
 	}
