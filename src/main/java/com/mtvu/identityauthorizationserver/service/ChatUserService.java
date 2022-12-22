@@ -2,6 +2,7 @@ package com.mtvu.identityauthorizationserver.service;
 
 import com.mtvu.identityauthorizationserver.exception.UserAlreadyExistAuthenticationException;
 import com.mtvu.identityauthorizationserver.model.ChatUser;
+import com.mtvu.identityauthorizationserver.model.UserLoginType;
 import com.mtvu.identityauthorizationserver.record.ChatUserDTO;
 import com.mtvu.identityauthorizationserver.repository.ChatUserRepository;
 import lombok.AllArgsConstructor;
@@ -31,19 +32,20 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
         return chatUserRepository.existsById(userId);
     }
 
-    public void createUser(ChatUserDTO.Request.Create newUser) {
+    public ChatUser createUser(ChatUserDTO.Request.Create newUser, UserLoginType userLoginType) {
         if (exists(newUser.userId())) {
             throw new UserAlreadyExistAuthenticationException(newUser.userId());
         }
         var chatUser = ChatUser.builder()
             .userId(newUser.userId())
             .fullName(newUser.fullName())
-            .userLoginType(newUser.userLoginType())
+            .userLoginType(userLoginType)
             .password(passwordEncoder.encode(newUser.password()))
             .chatJoinRecords(new HashSet<>())
             .avatar(newUser.avatar())
             .build();
         chatUserRepository.save(chatUser);
+        return chatUser;
     }
 
     @Override
