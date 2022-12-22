@@ -34,5 +34,5 @@ build:
 
 .PHONY: remote
 remote:
-		rsync -Pva --exclude build --exclude=".*" --delete --ignore-existing . $(REMOTE_SERVER):$(TEST_PATH)
+		rsync -Pva --exclude build --exclude=".*" --delete . $(REMOTE_SERVER):$(TEST_PATH)
 		ssh -t -l $(REMOTE_USER) $(REMOTE_SERVER) "cd ${TEST_PATH} ; bash --login" < /dev/tty
