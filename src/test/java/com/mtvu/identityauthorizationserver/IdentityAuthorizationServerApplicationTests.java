@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = "spring.config.additional-location=classpath:test.yml")
+@TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Import({DefaultDataInitializingConfig.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerApplicationTests {
