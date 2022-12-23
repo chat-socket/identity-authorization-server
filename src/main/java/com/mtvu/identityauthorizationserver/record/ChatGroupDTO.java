@@ -12,9 +12,12 @@ import java.util.stream.Collectors;
  * @project chat-socket
  **/
 public class ChatGroupDTO {
+    public enum Request {;
+        public record Create(Set<String> participants) {}
+    }
     public enum Response {;
-        public record Public(@NotBlank String groupId, String name, String avatar, Set<String> participants,
-                             OffsetDateTime createdAt) {
+        public record Public(@NotBlank String groupId, String name, String description, String avatar,
+                             Set<String> participants, OffsetDateTime createdAt) {
             public static ChatGroupDTO.Response.Public create(ChatGroup chatGroup) {
                 var participants = chatGroup.getChatJoinRecords().stream()
                     .map((x) -> x.getChatUser().getUserId())
@@ -22,6 +25,7 @@ public class ChatGroupDTO {
                 return new ChatGroupDTO.Response.Public(
                     chatGroup.getGroupId(),
                     chatGroup.getGroupName(),
+                    chatGroup.getGroupDescription(),
                     chatGroup.getGroupAvatar(),
                     participants,
                     chatGroup.getCreatedAt());
