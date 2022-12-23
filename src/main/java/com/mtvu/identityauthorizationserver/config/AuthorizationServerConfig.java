@@ -78,7 +78,9 @@ public class AuthorizationServerConfig {
 
 		http
             .securityMatcher(endpointsMatcher)
-            .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
+            .csrf(csrf -> csrf
+					.ignoringRequestMatchers(endpointsMatcher)
+					.ignoringRequestMatchers("/api"))
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 		http.apply(new FederatedIdentityConfigurer());
 		return http.build();
