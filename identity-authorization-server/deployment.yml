@@ -21,6 +21,9 @@ spec:
           image: 'identity-authorization-server:v1'
           ports:
             - containerPort: 9000
+              name: ingress-port
+            - containerPort: 8081
+              name: actuator-port
           env:
             - name: POSTGRES_HOST
               value: 'identity-authorization-db'
@@ -38,11 +41,11 @@ spec:
                 command: [ "sh", "-c", "sleep 10" ]
           readinessProbe:
             httpGet:
-              port: 9000
+              port: 8081
               path: /actuator/health/readiness
           livenessProbe:
             httpGet:
-              port: 9000
+              port: 8081
               path: /actuator/health/liveness
           resources:
             requests:

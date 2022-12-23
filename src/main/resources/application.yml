@@ -53,6 +53,8 @@ spring:
             user-name-attribute: login
 
 management:
+  server:
+    port: 8081
   endpoint:
     health:
       probes:
