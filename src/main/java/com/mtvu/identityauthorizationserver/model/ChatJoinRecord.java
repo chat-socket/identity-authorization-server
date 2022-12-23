@@ -1,8 +1,7 @@
 package com.mtvu.identityauthorizationserver.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
@@ -14,6 +13,10 @@ import java.time.OffsetDateTime;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
+@Table(name = "chat_join_record")
 public class ChatJoinRecord {
 
     @EmbeddedId
@@ -33,7 +36,7 @@ public class ChatJoinRecord {
     @CreationTimestamp
     private OffsetDateTime joinedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "roleId")
-    private ChatRole role;
+    @Column(name = "role_id", nullable = false, updatable = false, length = 100)
+    @Enumerated(EnumType.STRING)
+    private GroupRole role;
 }
