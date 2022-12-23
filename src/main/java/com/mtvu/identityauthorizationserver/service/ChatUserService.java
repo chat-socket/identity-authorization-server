@@ -33,9 +33,6 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
     }
 
     public ChatUser createUser(ChatUserDTO.Request.Create newUser, UserLoginType userLoginType) {
-        if (exists(newUser.userId())) {
-            throw new UserAlreadyExistAuthenticationException(newUser.userId());
-        }
         var chatUser = ChatUser.builder()
             .userId(newUser.userId())
             .fullName(newUser.fullName())
@@ -44,20 +41,22 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
             .chatJoinRecords(new HashSet<>())
             .avatar(newUser.avatar())
             .build();
-        chatUserRepository.save(chatUser);
-        return chatUser;
+        return chatUserRepository.save(chatUser);
     }
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        var currentUser = getUser(userId);
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return new User(userId, currentUser.getPassword(), authorities);
+    }
+
+    public ChatUser getUser(String userId) {
         var chatUser = chatUserRepository.findById(userId);
         if (chatUser.isEmpty()) {
             throw new UsernameNotFoundException(userId);
         }
-
-        var currentUser = chatUser.get();
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new User(userId, currentUser.getPassword(), authorities);
+        return chatUser.get();
     }
 
     @Override
