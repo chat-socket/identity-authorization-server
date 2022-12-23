@@ -2,10 +2,7 @@ package com.mtvu.identityauthorizationserver.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -17,6 +14,8 @@ import java.io.Serializable;
 @Getter
 @Setter
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class ChatUserGroupKey implements Serializable {
 
