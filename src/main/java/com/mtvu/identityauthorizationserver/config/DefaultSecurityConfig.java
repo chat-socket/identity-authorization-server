@@ -50,7 +50,8 @@ public class DefaultSecurityConfig {
 		http
 			.authorizeHttpRequests(authorize ->
 				authorize
-					.requestMatchers("/assets/**", "/webjars/**", "/login").permitAll()
+					.requestMatchers("/assets/**", "/webjars/**", "/actuator/**",
+							"/register", "/login").permitAll()
 					.anyRequest().authenticated()
 			)
 //            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

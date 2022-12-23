@@ -15,7 +15,7 @@ import static org.springframework.http.ResponseEntity.notFound;
  * @project chat-socket
  **/
 @AllArgsConstructor
-@RestController("/group")
+@RestController("/api/group")
 public class GroupManagementController {
 
     private final ChatGroupService chatGroupService;
