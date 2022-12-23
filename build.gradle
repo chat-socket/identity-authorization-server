@@ -31,6 +31,7 @@ dependencies {
   annotationProcessor 'org.projectlombok:lombok'
   annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
   implementation 'org.springframework.security:spring-security-oauth2-authorization-server:1.0.0'
+  implementation 'org.springframework.security:spring-security-cas:5.8.1'
 
   runtimeOnly "com.h2database:h2"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
