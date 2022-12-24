@@ -93,21 +93,23 @@ public class AuthorizationServerConfig {
 
 	@Bean
 	public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate,
-                                                                 ClientConfigurationProperties properties) {
+                                                                 ClientConfigurationProperties clients) {
         var registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
-        RegisteredClient registeredClient = RegisteredClient.withId("DefaultChatClient")
-            .clientId(properties.getClientId())
-            .clientSecret(properties.getClientSecret())
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .redirectUri(properties.getRedirectUri())
-            .scopes((x) -> x.addAll(properties.getScope()))
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
-            .build();
-        registeredClientRepository.save(registeredClient);
-        return registeredClientRepository;
+		for (ClientConfigurationProperties.ClientProperties properties : clients.getClients()) {
+			RegisteredClient registeredClient = RegisteredClient.withId(properties.getIdentifier())
+					.clientId(properties.getClientId())
+					.clientSecret(properties.getClientSecret())
+					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+					.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+					.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+					.redirectUri(properties.getRedirectUri())
+					.scopes((x) -> x.addAll(properties.getScope()))
+					.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+					.build();
+			registeredClientRepository.save(registeredClient);
+		}
+		return registeredClientRepository;
 	}
 
 	@Bean

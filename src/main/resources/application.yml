@@ -4,11 +4,13 @@ server:
   forward-headers-strategy: NATIVE
 
 chat:
-  client:
-    client-id: ${CHAT_CLIENT_ID:chat-client-id}
-    client-secret: ${CHAT_CLIENT_SECRET:{noop}client-secret}
-    scope: openid, profile:read, profile:write, message:read, message:write
-    redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+  clients:
+    -
+      identifier: web-client
+      client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
+      client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
+      scope: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write
+      redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
 
 spring:
   application:
