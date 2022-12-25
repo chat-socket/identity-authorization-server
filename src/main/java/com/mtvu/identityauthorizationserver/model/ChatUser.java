@@ -38,8 +38,12 @@ public class ChatUser {
     private String avatar;
 
     @Builder.Default
-    @Column(name = "isLocked", columnDefinition = "boolean")
+    @Column(name = "is_locked", columnDefinition = "boolean")
     private boolean isLocked = false;
+
+    @Builder.Default
+    @Column(name = "is_activated", columnDefinition = "boolean")
+    private boolean isActivated = false;
 
     @OneToMany(mappedBy = "chatUser")
     private Set<ChatJoinRecord> chatJoinRecords;

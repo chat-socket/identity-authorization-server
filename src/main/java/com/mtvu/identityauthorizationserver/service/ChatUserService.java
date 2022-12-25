@@ -1,6 +1,5 @@
 package com.mtvu.identityauthorizationserver.service;
 
-import com.mtvu.identityauthorizationserver.exception.UserAlreadyExistAuthenticationException;
 import com.mtvu.identityauthorizationserver.model.ChatUser;
 import com.mtvu.identityauthorizationserver.model.UserLoginType;
 import com.mtvu.identityauthorizationserver.record.ChatUserDTO;
@@ -48,7 +47,8 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         var currentUser = getUser(userId);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new User(userId, currentUser.getPassword(), authorities);
+        return new User(userId, currentUser.getPassword(), currentUser.isActivated(),
+                true, true, !currentUser.isLocked(), authorities);
     }
 
     public ChatUser getUser(String userId) {
@@ -61,11 +61,7 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
 
     @Override
     public UserDetails updatePassword(UserDetails user, String newPassword) {
-        var chatUser = chatUserRepository.findById(user.getUsername());
-        if (chatUser.isEmpty()) {
-            throw new UsernameNotFoundException(user.getUsername());
-        }
-        var currentUser = chatUser.get();
+        var currentUser = getUser(user.getUsername());
         currentUser.setPassword(passwordEncoder.encode(newPassword));
         chatUserRepository.save(currentUser);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));

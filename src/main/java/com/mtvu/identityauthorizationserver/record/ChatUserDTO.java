@@ -18,13 +18,14 @@ public enum ChatUserDTO {;
 
     public enum Response {;
         public record Public(@NotBlank String userId, String fullName, @NotNull UserLoginType userLoginType,
-                             String avatar, boolean isLocked, OffsetDateTime createdAt) {
+                             String avatar, boolean isActivated, boolean isLocked, OffsetDateTime createdAt) {
             public static ChatUserDTO.Response.Public create(ChatUser chatUser) {
                 return new ChatUserDTO.Response.Public(
                         chatUser.getUserId(),
                         chatUser.getFullName(),
                         chatUser.getUserLoginType(),
                         chatUser.getAvatar(),
+                        chatUser.isActivated(),
                         chatUser.isLocked(),
                         chatUser.getCreatedAt()
                 );
