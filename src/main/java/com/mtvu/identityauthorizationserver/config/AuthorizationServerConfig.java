@@ -33,7 +33,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
@@ -50,8 +49,6 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import java.util.UUID;
 
 /**
  * @author Steve Riesenberg
@@ -75,12 +72,11 @@ public class AuthorizationServerConfig {
 
         RequestMatcher endpointsMatcher = http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .getEndpointsMatcher();
-
 		http
             .securityMatcher(endpointsMatcher)
-            .csrf(csrf -> csrf
-					.ignoringRequestMatchers(endpointsMatcher)
-					.ignoringRequestMatchers("/api"))
+			.csrf()
+				.ignoringRequestMatchers(endpointsMatcher)
+			.and()
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 		http.apply(new FederatedIdentityConfigurer());
 		return http.build();

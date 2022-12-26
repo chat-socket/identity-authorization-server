@@ -20,12 +20,13 @@ import com.mtvu.identityauthorizationserver.security.UserRepositoryOAuth2UserHan
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * @author Steve Riesenberg
@@ -35,6 +36,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class DefaultSecurityConfig {
 
     @Bean
@@ -54,7 +56,7 @@ public class DefaultSecurityConfig {
 							"/register", "/login").permitAll()
 					.anyRequest().authenticated()
 			)
-//            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
 			.formLogin(Customizer.withDefaults())
 			.apply(federatedIdentityConfigurer);
 		return http.build();

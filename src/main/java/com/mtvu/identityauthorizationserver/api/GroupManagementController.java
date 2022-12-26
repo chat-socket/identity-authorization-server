@@ -8,6 +8,7 @@ import com.mtvu.identityauthorizationserver.service.ChatGroupService;
 import com.mtvu.identityauthorizationserver.service.ChatUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -29,6 +30,7 @@ public class GroupManagementController {
     private final ChatUserService chatUserService;
 
     @GetMapping("/{groupId}")
+    @PreAuthorize("hasAuthority('SCOPE_groups:read')")
     public ResponseEntity<ChatGroupDTO.Response.Public> getGroup(@PathVariable("groupId") String groupId) {
         var group = chatGroupService.getChatGroup(groupId);
         return group

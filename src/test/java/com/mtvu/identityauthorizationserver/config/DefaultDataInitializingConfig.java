@@ -42,9 +42,11 @@ public class DefaultDataInitializingConfig {
             .redirectUri("http://127.0.0.1:8080/authorized")
             .scope(OidcScopes.OPENID)
             .scope(OidcScopes.PROFILE)
-            .scope("message.read")
-            .scope("message.write")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+            .scope("message:read")
+            .scope("message:write")
+            .scope("group:write")
+            .scope("group:read")
+            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
             .build();
 
         registeredClientRepository.save(registeredClient);
