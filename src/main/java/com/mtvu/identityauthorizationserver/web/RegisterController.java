@@ -25,7 +25,8 @@ public class RegisterController {
         if (chatUserService.exists(userData.userId())) {
             throw new UserAlreadyExistAuthenticationException(userData.userId());
         }
-        chatUserService.createUser(userData, UserLoginType.PASSWORD);
+        var isActivated = false;    // Todo: Need to verify email
+        chatUserService.createUser(userData, UserLoginType.PASSWORD, isActivated);
         return "redirect:/login";
     }
 }

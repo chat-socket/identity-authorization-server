@@ -31,13 +31,15 @@ public class ChatUserService implements UserDetailsService, UserDetailsPasswordS
         return chatUserRepository.existsById(userId);
     }
 
-    public ChatUser createUser(ChatUserDTO.Request.Create newUser, UserLoginType userLoginType) {
+    public ChatUser createUser(ChatUserDTO.Request.Create newUser,
+                               UserLoginType userLoginType, boolean isActivated) {
         var chatUser = ChatUser.builder()
             .userId(newUser.userId())
             .fullName(newUser.fullName())
             .userLoginType(userLoginType)
             .password(passwordEncoder.encode(newUser.password()))
             .chatJoinRecords(new HashSet<>())
+            .isActivated(isActivated)
             .avatar(newUser.avatar())
             .build();
         return chatUserRepository.save(chatUser);
