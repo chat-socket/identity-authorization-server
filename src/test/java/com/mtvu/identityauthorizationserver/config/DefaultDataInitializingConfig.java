@@ -52,7 +52,7 @@ public class DefaultDataInitializingConfig {
         registeredClientRepository.save(registeredClient);
 
         var user = new ChatUserDTO.Request.Create("user1", "", "password", "");
-        chatUserService.createUser(user, UserLoginType.PASSWORD, true);
+        chatUserService.createUser(user, UserLoginType.EMAIL);
     }
 
 }

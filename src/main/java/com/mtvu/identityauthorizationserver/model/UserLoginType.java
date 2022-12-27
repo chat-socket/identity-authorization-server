@@ -5,7 +5,7 @@ package com.mtvu.identityauthorizationserver.model;
  * @project chat-socket
  **/
 public enum UserLoginType {
-    PASSWORD,
+    EMAIL,
     GOOGLE,
     GITHUB,
     FACEBOOK

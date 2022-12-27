@@ -1,6 +1,5 @@
 package com.mtvu.identityauthorizationserver.web;
 
-import com.mtvu.identityauthorizationserver.exception.UserAlreadyExistAuthenticationException;
 import com.mtvu.identityauthorizationserver.model.UserLoginType;
 import com.mtvu.identityauthorizationserver.record.ChatUserDTO;
 import com.mtvu.identityauthorizationserver.service.ChatUserService;
@@ -22,11 +21,7 @@ public class RegisterController {
 
     @PostMapping(path = "/register", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public String handleRegister(ChatUserDTO.Request.Create userData) {
-        if (chatUserService.exists(userData.userId())) {
-            throw new UserAlreadyExistAuthenticationException(userData.userId());
-        }
-        var isActivated = false;    // Todo: Need to verify email
-        chatUserService.createUser(userData, UserLoginType.PASSWORD, isActivated);
+        chatUserService.createUser(userData, UserLoginType.EMAIL);
         return "redirect:/login";
     }
 }

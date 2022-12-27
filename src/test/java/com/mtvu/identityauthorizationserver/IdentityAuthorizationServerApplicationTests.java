@@ -54,7 +54,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Garnier-Moiroux
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+		classes = IdentityAuthorizationServerApplication.class)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Import({DefaultDataInitializingConfig.class})
 @AutoConfigureMockMvc
@@ -80,26 +81,26 @@ public class IdentityAuthorizationServerApplicationTests {
 
 	@BeforeEach
 	public void setUp() {
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
-		this.webClient.getOptions().setRedirectEnabled(true);
-		this.webClient.getCookieManager().clearCookies();	// log out
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
+		webClient.getOptions().setRedirectEnabled(true);
+		webClient.getCookieManager().clearCookies();	// log out
 
 	}
 
 	@Test
 	public void whenLoginSuccessfulThenDisplayNotFoundError() throws IOException {
-		HtmlPage page = this.webClient.getPage("/");
+		HtmlPage page = webClient.getPage("/");
 
 		assertLoginPage(page);
 
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		WebResponse signInResponse = signIn(page, "user1", "password").getWebResponse();
 		assertThat(signInResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());	// there is no "default" index page
 	}
 
 	@Test
 	public void whenLoginFailsThenDisplayBadCredentials() throws IOException {
-		HtmlPage page = this.webClient.getPage("/");
+		HtmlPage page = webClient.getPage("/");
 
 		HtmlPage loginErrorPage = signIn(page, "user1", "wrong-password");
 
@@ -110,7 +111,7 @@ public class IdentityAuthorizationServerApplicationTests {
 
 	@Test
 	public void whenNotLoggedInAndRequestingTokenThenRedirectsToLogin() throws IOException {
-		HtmlPage page = this.webClient.getPage(AUTHORIZATION_REQUEST);
+		HtmlPage page = webClient.getPage(AUTHORIZATION_REQUEST);
 
 		assertLoginPage(page);
 	}
@@ -118,12 +119,12 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Test
 	public void whenLoggingInAndRequestingTokenThenRedirectsToClientApplication() throws IOException {
 		// Log in
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		this.webClient.getOptions().setRedirectEnabled(false);
-		signIn(this.webClient.getPage("/login"), "user1", "password");
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		signIn(webClient.getPage("/login"), "user1", "password");
 
 		// Request token
-		WebResponse response = this.webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
+		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.MOVED_PERMANENTLY.value());
 		String location = response.getResponseHeaderValue("location");
@@ -134,12 +135,12 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Test
 	public void whenLoggingInAndRequestingTokenThenReturnAccessToken() throws IOException {
 
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		this.webClient.getOptions().setRedirectEnabled(false);
-		signIn(this.webClient.getPage("/login"), "user1", "password");
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		signIn(webClient.getPage("/login"), "user1", "password");
 
 		// Request token
-		WebResponse response = this.webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
+		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.MOVED_PERMANENTLY.value());
 		String location = response.getResponseHeaderValue("location");

@@ -15,8 +15,11 @@
  */
 package com.mtvu.identityauthorizationserver.config;
 
+import com.mtvu.identityauthorizationserver.auth.ServiceAuthenticationProvider;
+import com.mtvu.identityauthorizationserver.auth.UserDetailsWithPasswordService;
 import com.mtvu.identityauthorizationserver.security.FederatedIdentityConfigurer;
 import com.mtvu.identityauthorizationserver.security.UserRepositoryOAuth2UserHandler;
+import feign.Contract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -26,7 +29,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * @author Steve Riesenberg
@@ -46,9 +48,13 @@ public class DefaultSecurityConfig {
 
 	// @formatter:off
 	@Bean
-	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
+														  UserDetailsWithPasswordService userService) throws Exception {
 		FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
 			.oauth2UserHandler(new UserRepositoryOAuth2UserHandler());
+
+		var serviceAuthenticationProvider = new ServiceAuthenticationProvider();
+		serviceAuthenticationProvider.setUserDetailsWithPasswordService(userService);
 		http
 			.authorizeHttpRequests(authorize ->
 				authorize
@@ -56,10 +62,15 @@ public class DefaultSecurityConfig {
 							"/register", "/login").permitAll()
 					.anyRequest().authenticated()
 			)
-			.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
 			.formLogin(Customizer.withDefaults())
+			.authenticationProvider(serviceAuthenticationProvider)
 			.apply(federatedIdentityConfigurer);
 		return http.build();
 	}
 	// @formatter:on
+
+	@Bean
+	public Contract feignContract() {
+		return new feign.Contract.Default();
+	}
 }
