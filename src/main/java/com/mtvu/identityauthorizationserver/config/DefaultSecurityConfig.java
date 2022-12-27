@@ -20,21 +20,29 @@ import com.mtvu.identityauthorizationserver.security.UserRepositoryOAuth2UserHan
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * @author Steve Riesenberg
+ * @author mvu
+ * @project chat-socket
  * @since 0.2.3
  */
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class DefaultSecurityConfig {
+
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
 	// @formatter:off
 	@Bean
@@ -44,25 +52,14 @@ public class DefaultSecurityConfig {
 		http
 			.authorizeHttpRequests(authorize ->
 				authorize
-					.requestMatchers("/assets/**", "/webjars/**", "/login").permitAll()
+					.requestMatchers("/assets/**", "/webjars/**", "/actuator/**",
+							"/register", "/login").permitAll()
 					.anyRequest().authenticated()
 			)
+			.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
 			.formLogin(Customizer.withDefaults())
 			.apply(federatedIdentityConfigurer);
 		return http.build();
 	}
 	// @formatter:on
-
-	// @formatter:off
-	@Bean
-	public UserDetailsService users() {
-		UserDetails user = User.withDefaultPasswordEncoder()
-				.username("user1")
-				.password("password")
-				.roles("USER")
-				.build();
-		return new InMemoryUserDetailsManager(user);
-	}
-	// @formatter:on
-
 }

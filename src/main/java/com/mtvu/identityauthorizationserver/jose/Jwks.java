@@ -31,6 +31,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 
 /**
  * @author Joe Grandja
+ * @author mvu
+ * @project chat-socket
  * @since 0.1.0
  */
 public final class Jwks {

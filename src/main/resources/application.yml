@@ -1,18 +1,27 @@
 server:
   port: 9000
   shutdown: graceful
+  forward-headers-strategy: NATIVE
+
+chat:
+  clients:
+    -
+      identifier: web-client
+      client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
+      client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
+      scope: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write
+      redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
 
 spring:
   application:
     name: identity-authorization-server
   datasource:
-    url: jdbc:mysql://${POSTGRES_HOST:localhost}:3306/${POSTGRES_DB:identity-authorization-db}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:3306/${POSTGRES_DB:identity-authorization-db}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: validate
-    database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         jdbc:
@@ -45,10 +54,24 @@ spring:
           github:
             user-name-attribute: login
 
+management:
+  server:
+    port: 8081
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+
 logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.security.oauth2: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
 #    org.springframework.boot.autoconfigure: DEBUG
