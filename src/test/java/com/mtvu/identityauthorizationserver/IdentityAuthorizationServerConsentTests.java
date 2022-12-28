@@ -9,7 +9,10 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.mtvu.identityauthorizationserver.config.DefaultDataInitializingConfig;
+import com.mtvu.identityauthorizationserver.config.WireMockConfigUserService;
+import com.mtvu.identityauthorizationserver.mocks.UserManagementServiceMocks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,9 +39,9 @@ import static org.mockito.Mockito.when;
  * @author Dmitriy Dubson
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
-@Import({DefaultDataInitializingConfig.class})
+@Import({WireMockConfigUserService.class, DefaultDataInitializingConfig.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerConsentTests {
     @Autowired
@@ -47,7 +50,10 @@ public class IdentityAuthorizationServerConsentTests {
     @MockBean
     private OAuth2AuthorizationConsentService authorizationConsentService;
 
-    private final String redirectUri = "http://127.0.0.1/login/oauth2/code/messaging-client-oidc";
+    @Autowired
+    private WireMockServer mockUserService;
+
+    private final String redirectUri = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
 
     private final String authorizationRequestUri = UriComponentsBuilder
         .fromPath("/oauth2/authorize")
@@ -59,11 +65,13 @@ public class IdentityAuthorizationServerConsentTests {
         .toUriString();
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         this.webClient.getOptions().setRedirectEnabled(true);
         this.webClient.getCookieManager().clearCookies();
         when(this.authorizationConsentService.findById(any(), any())).thenReturn(null);
+        UserManagementServiceMocks.setupMockBooksResponse(mockUserService);
+
     }
 
     @Test

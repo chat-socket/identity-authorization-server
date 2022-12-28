@@ -43,6 +43,7 @@ dependencies {
   testImplementation "org.springframework.security:spring-security-test"
   testImplementation "org.junit.jupiter:junit-jupiter"
   testImplementation "net.sourceforge.htmlunit:htmlunit"
+  testImplementation "com.github.tomakehurst:wiremock-jre8-standalone:2.35.0"
 }
 
 dependencyManagement {

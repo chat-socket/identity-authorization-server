@@ -26,7 +26,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.mtvu.identityauthorizationserver.config.DefaultDataInitializingConfig;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.mtvu.identityauthorizationserver.config.WireMockConfigUserService;
+import com.mtvu.identityauthorizationserver.mocks.UserManagementServiceMocks;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.TestPropertySource;
@@ -57,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
 		classes = IdentityAuthorizationServerApplication.class)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
-@Import({DefaultDataInitializingConfig.class})
+@Import({WireMockConfigUserService.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerApplicationTests {
 	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
@@ -65,7 +66,7 @@ public class IdentityAuthorizationServerApplicationTests {
 	private static final String AUTHORIZATION_REQUEST = UriComponentsBuilder
 			.fromPath("/oauth2/authorize")
 			.queryParam("response_type", "code")
-			.queryParam("client_id", "messaging-client")
+			.queryParam("client_id", "chat-web-client-id")
 			.queryParam("scope", "openid")
 			.queryParam("state", "some-state")
 			.queryParam("redirect_uri", REDIRECT_URI)
@@ -74,17 +75,17 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Autowired
 	private WebClient webClient;
 
-	@LocalServerPort
-	private int appPort;
+	@Autowired
+	private WireMockServer mockUserService;
 
 	private RestTemplate restTemplate = new RestTemplate();
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws IOException {
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
 		webClient.getOptions().setRedirectEnabled(true);
 		webClient.getCookieManager().clearCookies();	// log out
-
+		UserManagementServiceMocks.setupMockBooksResponse(mockUserService);
 	}
 
 	@Test
@@ -150,16 +151,13 @@ public class IdentityAuthorizationServerApplicationTests {
 		var redirectUri = UriComponentsBuilder.fromUriString(location).build();
 		var authorisationCode = redirectUri.getQueryParams().get("code").get(0);
 
-		var tokenApi = UriComponentsBuilder.newInstance()
-				.scheme("http")
-				.host("127.0.0.1")
-				.port(appPort)
-				.path("/oauth2/token").build().toUri();
+		var tokenApi = UriComponentsBuilder.fromUriString("http://127.0.0.1:9000/oauth2/token")
+				.build().toUri();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		var encodedClientData = Base64Utils.encodeToString("messaging-client:secret".getBytes());
+		var encodedClientData = Base64Utils.encodeToString("chat-web-client-id:web-client-secret".getBytes());
 		headers.add("Authorization", "Basic " + encodedClientData);
 
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();

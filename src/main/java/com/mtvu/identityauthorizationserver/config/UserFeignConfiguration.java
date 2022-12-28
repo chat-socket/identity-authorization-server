@@ -1,7 +1,6 @@
 package com.mtvu.identityauthorizationserver.config;
 
 import com.mtvu.identityauthorizationserver.exception.UserAlreadyExistAuthenticationException;
-import feign.Response;
 import feign.codec.ErrorDecoder;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.springframework.context.annotation.Bean;
