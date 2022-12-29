@@ -114,7 +114,7 @@ public class AuthorizationServerConfig {
 					.clientSecret(properties.getClientSecret())
 					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 					.authorizationGrantTypes(x -> x.addAll(grantTypes))
-					.redirectUri(properties.getRedirectUri())
+					.redirectUris(x -> x.addAll(properties.getRedirectUris()))
 					.scopes((x) -> x.addAll(properties.getScopes()))
 					.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
 					.build();

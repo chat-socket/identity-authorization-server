@@ -24,6 +24,6 @@ public class ClientConfigurationProperties {
         private String clientSecret;
         private Set<String> scopes;
         private Set<String> grantTypes;
-        private String redirectUri;
+        private Set<String> redirectUris;
     }
 }

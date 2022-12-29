@@ -13,7 +13,7 @@ chat:
       client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
       grant-types: authorization_code, refresh_token
       scopes: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write
-      redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
 
     -
       identifier: auth-service
@@ -21,7 +21,7 @@ chat:
       client-secret: ${AUTH_CLIENT_SECRET:{noop}auth-service-client-secret}
       grant-types: client_credentials
       scopes: user:create, user:find
-      redirect-uri: ${AUTH_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+      redirect-uris:
 
   auth:
     provider:
