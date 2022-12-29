@@ -55,6 +55,8 @@ spring:
 
   security:
     oauth2:
+      server:
+        issuer-uri: ${AUTH_SERVICE_ISSUER_URI:http://127.0.0.1:9000}
       client:
         registration:
           google-idp:

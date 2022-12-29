@@ -24,6 +24,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -69,6 +70,9 @@ import java.util.Set;
 @EnableConfigurationProperties({ClientConfigurationProperties.class, ProviderConfigurationProperties.class})
 public class AuthorizationServerConfig {
     private static final String CUSTOM_CONSENT_PAGE_URI = "/oauth2/consent";
+
+	@Value("${spring.security.oauth2.server.issuer-uri}")
+	private String issuer;
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
@@ -182,7 +186,9 @@ public class AuthorizationServerConfig {
 
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().build();
+		return AuthorizationServerSettings.builder()
+				.issuer(issuer)
+				.build();
 	}
 
 }
