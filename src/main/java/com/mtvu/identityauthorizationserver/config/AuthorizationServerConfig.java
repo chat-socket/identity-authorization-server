@@ -113,6 +113,7 @@ public class AuthorizationServerConfig {
 					.clientId(properties.getClientId())
 					.clientSecret(properties.getClientSecret())
 					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+					.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
 					.authorizationGrantTypes(x -> x.addAll(grantTypes))
 					.redirectUris(x -> x.addAll(properties.getRedirectUris()))
 					.scopes((x) -> x.addAll(properties.getScopes()))
