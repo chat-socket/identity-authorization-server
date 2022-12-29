@@ -33,6 +33,10 @@ spec:
               value: "db_user"
             - name: POSTGRES_PASSWORD
               value: "should_be_from_secret"
+            - name: USER_MANAGEMENT_SERVICE
+              value: "http://user-management-service"
+            - name: AUTH_SERVICE_ISSUER_URI
+              value: "http://identity-authorization-server"
             - name: JAVA_OPTS
               value: "-Xmx256m -Xms128m -Xss256k -XX:CompressedClassSpaceSize=32m -XX:-TieredCompilation"
           lifecycle:
