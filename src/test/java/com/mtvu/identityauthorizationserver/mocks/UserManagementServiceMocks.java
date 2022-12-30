@@ -30,4 +30,14 @@ public class UserManagementServiceMocks {
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                         .withBody(objectMapper.writeValueAsString(user))));
     }
+
+    public static void setupMockUserCreationResponse(WireMockServer mockService, String username) throws IOException {
+        var user = new ChatUserDTO.Response.Public(username, "Vu Manh Tu", UserLoginType.EMAIL,
+                "", true, false, OffsetDateTime.now());
+        mockService.stubFor(WireMock.post(WireMock.urlEqualTo("/api/user/create/EMAIL"))
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                        .withBody(objectMapper.writeValueAsString(user))));
+    }
 }
