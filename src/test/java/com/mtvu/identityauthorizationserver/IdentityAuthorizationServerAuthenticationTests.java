@@ -60,7 +60,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Import({WireMockConfigUserService.class})
 @AutoConfigureMockMvc
-public class IdentityAuthorizationServerApplicationTests {
+public class IdentityAuthorizationServerAuthenticationTests {
 	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
 
 	private static final String AUTHORIZATION_REQUEST = UriComponentsBuilder
@@ -85,7 +85,7 @@ public class IdentityAuthorizationServerApplicationTests {
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
 		webClient.getOptions().setRedirectEnabled(true);
 		webClient.getCookieManager().clearCookies();	// log out
-		UserManagementServiceMocks.setupMockBooksResponse(mockUserService);
+		UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
 	}
 
 	@Test
@@ -97,6 +97,7 @@ public class IdentityAuthorizationServerApplicationTests {
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		WebResponse signInResponse = signIn(page, "user1", "password").getWebResponse();
 		assertThat(signInResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());	// there is no "default" index page
+
 	}
 
 	@Test

@@ -19,11 +19,11 @@ public class UserManagementServiceMocks {
             .addModule(new JavaTimeModule())
             .build();
 
-    public static void setupMockBooksResponse(WireMockServer mockService) throws IOException {
-        var user = new ChatUserDTO.Response.Public("user1", "Vu Manh Tu", UserLoginType.EMAIL,
+    public static void setupMockUserFindResponse(WireMockServer mockService, String username) throws IOException {
+        var user = new ChatUserDTO.Response.Public(username, "Vu Manh Tu", UserLoginType.EMAIL,
                 "", true, false, OffsetDateTime.now());
         mockService.stubFor(WireMock.get(WireMock.urlEqualTo("/api/user/find"))
-                        .withHeader("FindUser", WireMock.equalTo("user1"))
+                        .withHeader("FindUser", WireMock.equalTo(username))
                         .withHeader("FindPwd", WireMock.equalTo("password"))
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())

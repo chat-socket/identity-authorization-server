@@ -70,7 +70,7 @@ public class IdentityAuthorizationServerConsentTests {
         this.webClient.getOptions().setRedirectEnabled(true);
         this.webClient.getCookieManager().clearCookies();
         when(this.authorizationConsentService.findById(any(), any())).thenReturn(null);
-        UserManagementServiceMocks.setupMockBooksResponse(mockUserService);
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
 
     }
 

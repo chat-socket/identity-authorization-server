@@ -21,10 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -65,7 +63,7 @@ public class IdentityAuthorizationServerPKCETest {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
         webClient.getOptions().setRedirectEnabled(true);
         webClient.getCookieManager().clearCookies();	// log out
-        UserManagementServiceMocks.setupMockBooksResponse(mockUserService);
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
     }
 
     @Test
