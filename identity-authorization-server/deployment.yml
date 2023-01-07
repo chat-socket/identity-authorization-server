@@ -36,7 +36,7 @@ spec:
             - name: USER_MANAGEMENT_SERVICE
               value: "http://user-management-service"
             - name: AUTH_SERVICE_ISSUER_URI
-              value: "http://identity-authorization-server"
+              value: "http://accounts.chat-socket.io"
             - name: JAVA_OPTS
               value: "-Xmx256m -Xms128m -Xss256k -XX:CompressedClassSpaceSize=32m -XX:-TieredCompilation"
           lifecycle:
