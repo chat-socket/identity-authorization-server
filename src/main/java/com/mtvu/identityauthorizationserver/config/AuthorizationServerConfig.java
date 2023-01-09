@@ -56,8 +56,12 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -74,11 +78,17 @@ public class AuthorizationServerConfig {
 	@Value("${spring.security.oauth2.server.issuer-uri}")
 	private String issuer;
 
+	@Value("${spring.security.cors.whitelist}")
+	private List<String> corsWhiteList;
+
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+
+		http.cors()
+				.configurationSource(corsConfigurationSource())
+			.and().getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .authorizationEndpoint(authorizationEndpoint ->
                 authorizationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI))
             .oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
@@ -93,6 +103,21 @@ public class AuthorizationServerConfig {
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 		http.apply(new FederatedIdentityConfigurer());
 		return http.build();
+	}
+
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(corsWhiteList);
+
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("POST");
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/oauth2/**", config);
+		source.registerCorsConfiguration("/.well-known/**", config);
+
+		return source;
 	}
 
 	@Bean

@@ -12,8 +12,8 @@ chat:
       client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
       client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
       grant-types: authorization_code, refresh_token
-      scopes: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write
-      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+      scopes: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write, offline_access
+      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:4200/index.html}
 
     -
       identifier: auth-service
@@ -54,6 +54,8 @@ spring:
     sql-migration-suffixes: .sql
 
   security:
+    cors:
+      whitelist: http://127.0.0.1:4200, http://chat-socket.io
     oauth2:
       server:
         issuer-uri: ${AUTH_SERVICE_ISSUER_URI:http://127.0.0.1:9000}
