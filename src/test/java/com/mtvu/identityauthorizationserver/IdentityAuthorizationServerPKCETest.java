@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerPKCETest {
 
-    private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
+    private static final String REDIRECT_URI = "http://127.0.0.1:4200/index.html";
 
     @Autowired
     private WebClient webClient;
@@ -63,7 +63,7 @@ public class IdentityAuthorizationServerPKCETest {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
         webClient.getOptions().setRedirectEnabled(true);
         webClient.getCookieManager().clearCookies();	// log out
-        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class IdentityAuthorizationServerPKCETest {
 
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         webClient.getOptions().setRedirectEnabled(false);
-        signIn(webClient.getPage("/login"), "user1", "password");
+        signIn(webClient.getPage("/login"), "user@chat-socket.io", "password");
 
         var authorizationRequest = UriComponentsBuilder
                 .fromPath("/oauth2/authorize")
@@ -130,7 +130,7 @@ public class IdentityAuthorizationServerPKCETest {
     private static <P extends Page> P signIn(HtmlPage page, String username, String password) throws IOException {
         HtmlInput usernameInput = page.querySelector("input[name=\"username\"]");
         HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
-        HtmlButton signInButton = page.querySelector("button");
+        HtmlButton signInButton = page.querySelector("button[name=\"signin\"]");
 
         usernameInput.type(username);
         passwordInput.type(password);

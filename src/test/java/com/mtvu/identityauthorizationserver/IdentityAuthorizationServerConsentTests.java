@@ -53,7 +53,7 @@ public class IdentityAuthorizationServerConsentTests {
     @Autowired
     private WireMockServer mockUserService;
 
-    private final String redirectUri = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
+    private final String redirectUri = "http://127.0.0.1:4200/index.html";
 
     private final String authorizationRequestUri = UriComponentsBuilder
         .fromPath("/oauth2/authorize")
@@ -70,12 +70,12 @@ public class IdentityAuthorizationServerConsentTests {
         this.webClient.getOptions().setRedirectEnabled(true);
         this.webClient.getCookieManager().clearCookies();
         when(this.authorizationConsentService.findById(any(), any())).thenReturn(null);
-        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
 
     }
 
     @Test
-    @WithMockUser("user1")
+    @WithMockUser("user@chat-socket.io")
     public void whenUserConsentsToAllScopesThenReturnAuthorizationCode() throws IOException {
         final HtmlPage consentPage = this.webClient.getPage(this.authorizationRequestUri);
         assertThat(consentPage.getTitleText()).isEqualTo("Custom consent page - Consent required");
@@ -105,7 +105,7 @@ public class IdentityAuthorizationServerConsentTests {
     }
 
     @Test
-    @WithMockUser("user1")
+    @WithMockUser("user@chat-socket.io")
     public void whenUserCancelsConsentThenReturnAccessDeniedError() throws IOException {
         final HtmlPage consentPage = this.webClient.getPage(this.authorizationRequestUri);
         assertThat(consentPage.getTitleText()).isEqualTo("Custom consent page - Consent required");

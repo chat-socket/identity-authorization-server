@@ -62,7 +62,7 @@ public class IdentityAuthorizationServerRegisterTests {
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
 		webClient.getOptions().setRedirectEnabled(true);
 		webClient.getCookieManager().clearCookies();	// log out
-		UserManagementServiceMocks.setupMockUserCreationResponse(mockUserService, "user1");
+		UserManagementServiceMocks.setupMockUserCreationResponse(mockUserService, "user@chat-socket.io");
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class IdentityAuthorizationServerRegisterTests {
 
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		webClient.getOptions().setRedirectEnabled(false);
-		WebResponse signUpResponse = signUp(page, "user1", "password", "abc").getWebResponse();
+		WebResponse signUpResponse = signUp(page, "user@chat-socket.io", "password", "abc").getWebResponse();
 		assertThat(signUpResponse.getStatusCode()).isEqualTo(HttpStatus.MOVED_PERMANENTLY.value());	// there is no "default" index page
 
 		String location = signUpResponse.getResponseHeaderValue("location");
@@ -84,7 +84,7 @@ public class IdentityAuthorizationServerRegisterTests {
 		HtmlInput usernameInput = page.querySelector("input[name=\"userId\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
 		HtmlInput fullNameInput = page.querySelector("input[name=\"fullName\"]");
-		HtmlButton signUp = page.querySelector("button");
+		HtmlButton signUp = page.querySelector("button[name=\"signup\"]");
 
 		usernameInput.type(username);
 		passwordInput.type(password);
@@ -98,11 +98,11 @@ public class IdentityAuthorizationServerRegisterTests {
 		HtmlInput usernameInput = page.querySelector("input[name=\"userId\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
 		HtmlInput fullName = page.querySelector("input[name=\"fullName\"]");
-		HtmlButton signUpButton = page.querySelector("button");
+		HtmlButton signUpButton = page.querySelector("button[name=\"signup\"]");
 
 		assertThat(usernameInput).isNotNull();
 		assertThat(passwordInput).isNotNull();
 		assertThat(fullName).isNotNull();
-		assertThat(signUpButton.getTextContent()).isEqualTo("Sign Up");
+		assertThat(signUpButton.getTextContent().strip()).isEqualTo("Sign up");
 	}
 }

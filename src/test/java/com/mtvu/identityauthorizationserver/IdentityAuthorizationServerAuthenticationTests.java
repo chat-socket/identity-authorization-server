@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({WireMockConfigUserService.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerAuthenticationTests {
-	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
+	private static final String REDIRECT_URI = "http://127.0.0.1:4200/index.html";
 
 	private static final String AUTHORIZATION_REQUEST = UriComponentsBuilder
 			.fromPath("/oauth2/authorize")
@@ -85,7 +85,7 @@ public class IdentityAuthorizationServerAuthenticationTests {
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
 		webClient.getOptions().setRedirectEnabled(true);
 		webClient.getCookieManager().clearCookies();	// log out
-		UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user1");
+		UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
 	}
 
 	@Test
@@ -95,16 +95,15 @@ public class IdentityAuthorizationServerAuthenticationTests {
 		assertLoginPage(page);
 
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		WebResponse signInResponse = signIn(page, "user1", "password").getWebResponse();
+		WebResponse signInResponse = signIn(page, "user@chat-socket.io", "password").getWebResponse();
 		assertThat(signInResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());	// there is no "default" index page
-
 	}
 
 	@Test
 	public void whenLoginFailsThenDisplayBadCredentials() throws IOException {
 		HtmlPage page = webClient.getPage("/");
 
-		HtmlPage loginErrorPage = signIn(page, "user1", "wrong-password");
+		HtmlPage loginErrorPage = signIn(page, "user@chat-socket.io", "wrong-password");
 
 		HtmlElement alert = loginErrorPage.querySelector("div[role=\"alert\"]");
 		assertThat(alert).isNotNull();
@@ -123,7 +122,7 @@ public class IdentityAuthorizationServerAuthenticationTests {
 		// Log in
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		webClient.getOptions().setRedirectEnabled(false);
-		signIn(webClient.getPage("/login"), "user1", "password");
+		signIn(webClient.getPage("/login"), "user@chat-socket.io", "password");
 
 		// Request token
 		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
@@ -139,7 +138,7 @@ public class IdentityAuthorizationServerAuthenticationTests {
 
 		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		webClient.getOptions().setRedirectEnabled(false);
-		signIn(webClient.getPage("/login"), "user1", "password");
+		signIn(webClient.getPage("/login"), "user@chat-socket.io", "password");
 
 		// Request token
 		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
@@ -177,7 +176,7 @@ public class IdentityAuthorizationServerAuthenticationTests {
 	private static <P extends Page> P signIn(HtmlPage page, String username, String password) throws IOException {
 		HtmlInput usernameInput = page.querySelector("input[name=\"username\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
-		HtmlButton signInButton = page.querySelector("button");
+		HtmlButton signInButton = page.querySelector("button[name=\"signin\"]");
 
 		usernameInput.type(username);
 		passwordInput.type(password);
@@ -189,11 +188,11 @@ public class IdentityAuthorizationServerAuthenticationTests {
 
 		HtmlInput usernameInput = page.querySelector("input[name=\"username\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
-		HtmlButton signInButton = page.querySelector("button");
+		HtmlButton signInButton = page.querySelector("button[name=\"signin\"]");
 
 		assertThat(usernameInput).isNotNull();
 		assertThat(passwordInput).isNotNull();
-		assertThat(signInButton.getTextContent()).isEqualTo("Sign in");
+		assertThat(signInButton.getTextContent().strip()).isEqualTo("Sign in");
 	}
 
 }
