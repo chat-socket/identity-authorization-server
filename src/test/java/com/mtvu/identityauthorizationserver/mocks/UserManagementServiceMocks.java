@@ -20,7 +20,7 @@ public class UserManagementServiceMocks {
             .build();
 
     public static void setupMockUserFindResponse(WireMockServer mockService, String username) throws IOException {
-        var user = new ChatUserDTO.Response.Public(username, "Vu Manh Tu", UserLoginType.EMAIL,
+        var user = new ChatUserDTO.Response.Public(username, "Manh Tu", "VU", UserLoginType.EMAIL,
                 "", true, false, OffsetDateTime.now());
         mockService.stubFor(WireMock.get(WireMock.urlEqualTo("/api/user/find"))
                         .withHeader("FindUser", WireMock.equalTo(username))
@@ -32,7 +32,7 @@ public class UserManagementServiceMocks {
     }
 
     public static void setupMockUserCreationResponse(WireMockServer mockService, String username) throws IOException {
-        var user = new ChatUserDTO.Response.Public(username, "Vu Manh Tu", UserLoginType.EMAIL,
+        var user = new ChatUserDTO.Response.Public(username, "Manh Tu", "VU", UserLoginType.EMAIL,
                 "", true, false, OffsetDateTime.now());
         mockService.stubFor(WireMock.post(WireMock.urlEqualTo("/api/user/create/EMAIL"))
                 .willReturn(WireMock.aResponse()
