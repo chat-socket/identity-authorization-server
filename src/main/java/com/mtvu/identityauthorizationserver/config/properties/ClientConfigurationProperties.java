@@ -1,4 +1,4 @@
-package com.mtvu.identityauthorizationserver.config;
+package com.mtvu.identityauthorizationserver.config.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,7 +22,8 @@ public class ClientConfigurationProperties {
         private String identifier;
         private String clientId;
         private String clientSecret;
-        private Set<String> scope;
-        private String redirectUri;
+        private Set<String> scopes;
+        private Set<String> grantTypes;
+        private Set<String> redirectUris;
     }
 }

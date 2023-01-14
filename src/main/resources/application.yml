@@ -4,13 +4,34 @@ server:
   forward-headers-strategy: NATIVE
 
 chat:
+  services:
+    user-management-service: ${USER_MANAGEMENT_SERVICE:http://127.0.0.1:8090}
   clients:
     -
       identifier: web-client
       client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
       client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
-      scope: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write
-      redirect-uri: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc}
+      grant-types: authorization_code, refresh_token
+      scopes: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write, offline_access
+      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:4200/index.html}
+
+    -
+      identifier: auth-service
+      client-id: ${AUTH_CLIENT_ID:auth-service-client-id}
+      client-secret: ${AUTH_CLIENT_SECRET:{noop}auth-service-client-secret}
+      grant-types: client_credentials
+      scopes: user:create, user:find
+      redirect-uris:
+
+  auth:
+    provider:
+      identifier: auth-service
+      token-uri: http://127.0.0.1:${server.port}/oauth2/token
+      client-id: ${AUTH_CLIENT_ID:auth-service-client-id}
+      client-secret: ${AUTH_CLIENT_SECRET:auth-service-client-secret}
+      grant-type: client_credentials
+      scopes: user:create, user:find
+
 
 spring:
   application:
@@ -33,7 +54,11 @@ spring:
     sql-migration-suffixes: .sql
 
   security:
+    cors:
+      whitelist: http://127.0.0.1:4200, http://chat-socket.io
     oauth2:
+      server:
+        issuer-uri: ${AUTH_SERVICE_ISSUER_URI:http://127.0.0.1:9000}
       client:
         registration:
           google-idp:
@@ -72,6 +97,6 @@ logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
 #    org.springframework.boot.autoconfigure: DEBUG

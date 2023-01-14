@@ -15,6 +15,8 @@
  */
 package com.mtvu.identityauthorizationserver.config;
 
+import com.mtvu.identityauthorizationserver.config.properties.ClientConfigurationProperties;
+import com.mtvu.identityauthorizationserver.config.properties.ProviderConfigurationProperties;
 import com.mtvu.identityauthorizationserver.jose.Jwks;
 import com.mtvu.identityauthorizationserver.security.FederatedIdentityConfigurer;
 import com.mtvu.identityauthorizationserver.security.FederatedIdentityIdTokenCustomizer;
@@ -22,6 +24,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +34,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.client.*;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -49,6 +56,13 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Steve Riesenberg
@@ -57,15 +71,24 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 0.2.3
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(ClientConfigurationProperties.class)
+@EnableConfigurationProperties({ClientConfigurationProperties.class, ProviderConfigurationProperties.class})
 public class AuthorizationServerConfig {
     private static final String CUSTOM_CONSENT_PAGE_URI = "/oauth2/consent";
+
+	@Value("${spring.security.oauth2.server.issuer-uri}")
+	private String issuer;
+
+	@Value("${spring.security.cors.whitelist}")
+	private List<String> corsWhiteList;
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+
+		http.cors()
+				.configurationSource(corsConfigurationSource())
+			.and().getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .authorizationEndpoint(authorizationEndpoint ->
                 authorizationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI))
             .oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
@@ -82,6 +105,21 @@ public class AuthorizationServerConfig {
 		return http.build();
 	}
 
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(corsWhiteList);
+
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("POST");
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/oauth2/**", config);
+		source.registerCorsConfiguration("/.well-known/**", config);
+
+		return source;
+	}
+
 	@Bean
 	public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer() {
 		return new FederatedIdentityIdTokenCustomizer();
@@ -92,20 +130,62 @@ public class AuthorizationServerConfig {
                                                                  ClientConfigurationProperties clients) {
         var registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 		for (ClientConfigurationProperties.ClientProperties properties : clients.getClients()) {
+			Set<AuthorizationGrantType> grantTypes = new HashSet<>();
+			for (String grantType : properties.getGrantTypes()) {
+				grantTypes.add(new AuthorizationGrantType((grantType)));
+			}
 			RegisteredClient registeredClient = RegisteredClient.withId(properties.getIdentifier())
 					.clientId(properties.getClientId())
 					.clientSecret(properties.getClientSecret())
 					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-					.authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-					.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-					.redirectUri(properties.getRedirectUri())
-					.scopes((x) -> x.addAll(properties.getScope()))
+					.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+					.authorizationGrantTypes(x -> x.addAll(grantTypes))
+					.redirectUris(x -> x.addAll(properties.getRedirectUris()))
+					.scopes((x) -> x.addAll(properties.getScopes()))
 					.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
 					.build();
 			registeredClientRepository.save(registeredClient);
 		}
 		return registeredClientRepository;
+	}
+
+	@Bean
+	public ClientRegistration defaultClientRegistration(ProviderConfigurationProperties provider) {
+		return ClientRegistration.withRegistrationId(provider.getIdentifier())
+				.clientId(provider.getClientId())
+				.tokenUri(provider.getTokenUri())
+				.clientSecret(provider.getClientSecret())
+				.scope(provider.getScopes())
+				.authorizationGrantType(new AuthorizationGrantType(provider.getGrantType()))
+				.build();
+	}
+
+	@Bean
+	public ClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+		return new InMemoryClientRegistrationRepository(clientRegistration);
+	}
+
+	@Bean
+	public OAuth2AuthorizedClientService auth2AuthorizedClientService(ClientRegistrationRepository client) {
+		return new InMemoryOAuth2AuthorizedClientService(client);
+	}
+
+	@Bean
+	public AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientServiceAndManager (
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientService authorizedClientService) {
+
+		OAuth2AuthorizedClientProvider authorizedClientProvider =
+				OAuth2AuthorizedClientProviderBuilder.builder()
+						.clientCredentials()
+						.build();
+
+		AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
+				new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+						clientRegistrationRepository, authorizedClientService);
+		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+		return authorizedClientManager;
 	}
 
 	@Bean
@@ -132,7 +212,9 @@ public class AuthorizationServerConfig {
 
 	@Bean
 	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().build();
+		return AuthorizationServerSettings.builder()
+				.issuer(issuer)
+				.build();
 	}
 
 }

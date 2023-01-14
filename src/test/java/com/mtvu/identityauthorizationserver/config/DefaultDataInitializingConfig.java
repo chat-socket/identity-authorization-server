@@ -26,9 +26,6 @@ public class DefaultDataInitializingConfig {
     @Autowired
     private RegisteredClientRepository registeredClientRepository;
 
-    @Autowired
-    private ChatUserService chatUserService;
-
     @PostConstruct
     public void createDefaultClient() {
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
@@ -36,23 +33,16 @@ public class DefaultDataInitializingConfig {
             .clientSecret("{noop}secret")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
             .redirectUri("http://127.0.0.1:8080/authorized")
             .scope(OidcScopes.OPENID)
             .scope(OidcScopes.PROFILE)
-            .scope("message:read")
-            .scope("message:write")
-            .scope("group:write")
-            .scope("group:read")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+            .scope("message.read")
+            .scope("message.write")
+            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
             .build();
 
         registeredClientRepository.save(registeredClient);
-
-        var user = new ChatUserDTO.Request.Create("user1", "", "password", "");
-        chatUserService.createUser(user, UserLoginType.PASSWORD, true);
     }
 
 }

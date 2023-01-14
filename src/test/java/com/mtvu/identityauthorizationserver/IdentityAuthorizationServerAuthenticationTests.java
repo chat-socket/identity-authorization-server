@@ -26,7 +26,9 @@ import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.mtvu.identityauthorizationserver.config.DefaultDataInitializingConfig;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.mtvu.identityauthorizationserver.config.WireMockConfigUserService;
+import com.mtvu.identityauthorizationserver.mocks.UserManagementServiceMocks;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.TestPropertySource;
@@ -54,17 +55,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Garnier-Moiroux
  */
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
+		classes = IdentityAuthorizationServerApplication.class)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
-@Import({DefaultDataInitializingConfig.class})
+@Import({WireMockConfigUserService.class})
 @AutoConfigureMockMvc
-public class IdentityAuthorizationServerApplicationTests {
-	private static final String REDIRECT_URI = "http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc";
+public class IdentityAuthorizationServerAuthenticationTests {
+	private static final String REDIRECT_URI = "http://127.0.0.1:4200/index.html";
 
 	private static final String AUTHORIZATION_REQUEST = UriComponentsBuilder
 			.fromPath("/oauth2/authorize")
 			.queryParam("response_type", "code")
-			.queryParam("client_id", "messaging-client")
+			.queryParam("client_id", "chat-web-client-id")
 			.queryParam("scope", "openid")
 			.queryParam("state", "some-state")
 			.queryParam("redirect_uri", REDIRECT_URI)
@@ -73,35 +75,35 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Autowired
 	private WebClient webClient;
 
-	@LocalServerPort
-	private int appPort;
+	@Autowired
+	private WireMockServer mockUserService;
 
 	private RestTemplate restTemplate = new RestTemplate();
 
 	@BeforeEach
-	public void setUp() {
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
-		this.webClient.getOptions().setRedirectEnabled(true);
-		this.webClient.getCookieManager().clearCookies();	// log out
-
+	public void setUp() throws IOException {
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
+		webClient.getOptions().setRedirectEnabled(true);
+		webClient.getCookieManager().clearCookies();	// log out
+		UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
 	}
 
 	@Test
 	public void whenLoginSuccessfulThenDisplayNotFoundError() throws IOException {
-		HtmlPage page = this.webClient.getPage("/");
+		HtmlPage page = webClient.getPage("/");
 
 		assertLoginPage(page);
 
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		WebResponse signInResponse = signIn(page, "user1", "password").getWebResponse();
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		WebResponse signInResponse = signIn(page, "user@chat-socket.io", "password").getWebResponse();
 		assertThat(signInResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());	// there is no "default" index page
 	}
 
 	@Test
 	public void whenLoginFailsThenDisplayBadCredentials() throws IOException {
-		HtmlPage page = this.webClient.getPage("/");
+		HtmlPage page = webClient.getPage("/");
 
-		HtmlPage loginErrorPage = signIn(page, "user1", "wrong-password");
+		HtmlPage loginErrorPage = signIn(page, "user@chat-socket.io", "wrong-password");
 
 		HtmlElement alert = loginErrorPage.querySelector("div[role=\"alert\"]");
 		assertThat(alert).isNotNull();
@@ -110,7 +112,7 @@ public class IdentityAuthorizationServerApplicationTests {
 
 	@Test
 	public void whenNotLoggedInAndRequestingTokenThenRedirectsToLogin() throws IOException {
-		HtmlPage page = this.webClient.getPage(AUTHORIZATION_REQUEST);
+		HtmlPage page = webClient.getPage(AUTHORIZATION_REQUEST);
 
 		assertLoginPage(page);
 	}
@@ -118,12 +120,12 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Test
 	public void whenLoggingInAndRequestingTokenThenRedirectsToClientApplication() throws IOException {
 		// Log in
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		this.webClient.getOptions().setRedirectEnabled(false);
-		signIn(this.webClient.getPage("/login"), "user1", "password");
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		signIn(webClient.getPage("/login"), "user@chat-socket.io", "password");
 
 		// Request token
-		WebResponse response = this.webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
+		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.MOVED_PERMANENTLY.value());
 		String location = response.getResponseHeaderValue("location");
@@ -134,12 +136,12 @@ public class IdentityAuthorizationServerApplicationTests {
 	@Test
 	public void whenLoggingInAndRequestingTokenThenReturnAccessToken() throws IOException {
 
-		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-		this.webClient.getOptions().setRedirectEnabled(false);
-		signIn(this.webClient.getPage("/login"), "user1", "password");
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		signIn(webClient.getPage("/login"), "user@chat-socket.io", "password");
 
 		// Request token
-		WebResponse response = this.webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
+		WebResponse response = webClient.getPage(AUTHORIZATION_REQUEST).getWebResponse();
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.MOVED_PERMANENTLY.value());
 		String location = response.getResponseHeaderValue("location");
@@ -149,16 +151,13 @@ public class IdentityAuthorizationServerApplicationTests {
 		var redirectUri = UriComponentsBuilder.fromUriString(location).build();
 		var authorisationCode = redirectUri.getQueryParams().get("code").get(0);
 
-		var tokenApi = UriComponentsBuilder.newInstance()
-				.scheme("http")
-				.host("127.0.0.1")
-				.port(appPort)
-				.path("/oauth2/token").build().toUri();
+		var tokenApi = UriComponentsBuilder.fromUriString("http://127.0.0.1:9000/oauth2/token")
+				.build().toUri();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		var encodedClientData = Base64Utils.encodeToString("messaging-client:secret".getBytes());
+		var encodedClientData = Base64Utils.encodeToString("chat-web-client-id:web-client-secret".getBytes());
 		headers.add("Authorization", "Basic " + encodedClientData);
 
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -177,7 +176,7 @@ public class IdentityAuthorizationServerApplicationTests {
 	private static <P extends Page> P signIn(HtmlPage page, String username, String password) throws IOException {
 		HtmlInput usernameInput = page.querySelector("input[name=\"username\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
-		HtmlButton signInButton = page.querySelector("button");
+		HtmlButton signInButton = page.querySelector("button[name=\"signin\"]");
 
 		usernameInput.type(username);
 		passwordInput.type(password);
@@ -189,11 +188,11 @@ public class IdentityAuthorizationServerApplicationTests {
 
 		HtmlInput usernameInput = page.querySelector("input[name=\"username\"]");
 		HtmlInput passwordInput = page.querySelector("input[name=\"password\"]");
-		HtmlButton signInButton = page.querySelector("button");
+		HtmlButton signInButton = page.querySelector("button[name=\"signin\"]");
 
 		assertThat(usernameInput).isNotNull();
 		assertThat(passwordInput).isNotNull();
-		assertThat(signInButton.getTextContent()).isEqualTo("Sign in");
+		assertThat(signInButton.getTextContent().strip()).isEqualTo("Sign in");
 	}
 
 }
