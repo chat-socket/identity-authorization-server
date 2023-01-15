@@ -152,7 +152,7 @@ public class AuthorizationServerConfig {
 					.redirectUris(x -> x.addAll(properties.getRedirectUris()))
 					.scopes((x) -> x.addAll(properties.getScopes()))
 					.tokenSettings(TokenSettings.builder()
-							.accessTokenTimeToLive(Duration.ofMinutes(5))
+							.accessTokenTimeToLive(Duration.ofMinutes(10))
 							.refreshTokenTimeToLive(Duration.ofHours(2))
 							.build())
 					.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
