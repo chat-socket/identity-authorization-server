@@ -103,6 +103,10 @@ public class AuthorizationServerConfig {
 			.csrf()
 				.ignoringRequestMatchers(endpointsMatcher)
 			.and()
+				.headers()
+				.frameOptions()
+				.sameOrigin()
+			.and()
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 		http.apply(new FederatedIdentityConfigurer());
 		return http.build();
