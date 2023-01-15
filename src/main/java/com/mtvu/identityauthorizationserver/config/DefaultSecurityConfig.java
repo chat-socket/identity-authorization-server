@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * @author Steve Riesenberg
@@ -49,13 +50,17 @@ public class DefaultSecurityConfig {
 	// @formatter:off
 	@Bean
 	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
-														  UserDetailsWithPasswordService userService) throws Exception {
+														  UserDetailsWithPasswordService userService,
+														  CorsConfigurationSource corsConfigurationSource) throws Exception {
 		FederatedIdentityConfigurer federatedIdentityConfigurer = new FederatedIdentityConfigurer()
 			.oauth2UserHandler(new UserRepositoryOAuth2UserHandler());
 
 		var serviceAuthenticationProvider = new ServiceAuthenticationProvider();
 		serviceAuthenticationProvider.setUserDetailsWithPasswordService(userService);
 		http
+			.cors()
+				.configurationSource(corsConfigurationSource)
+			.and()
 			.authorizeHttpRequests(authorize ->
 				authorize
 					.requestMatchers("/assets/**", "/webjars/**", "/actuator/**",

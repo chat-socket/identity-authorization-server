@@ -83,11 +83,12 @@ public class AuthorizationServerConfig {
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain authorizationServerSecurityFilterChain(
+			HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
 		http.cors()
-				.configurationSource(corsConfigurationSource())
+				.configurationSource(corsConfigurationSource)
 			.and().getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .authorizationEndpoint(authorizationEndpoint ->
                 authorizationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI))
@@ -105,6 +106,7 @@ public class AuthorizationServerConfig {
 		return http.build();
 	}
 
+	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(corsWhiteList);
@@ -116,6 +118,7 @@ public class AuthorizationServerConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/oauth2/**", config);
 		source.registerCorsConfiguration("/.well-known/**", config);
+		source.registerCorsConfiguration("/userinfo", config);
 
 		return source;
 	}
