@@ -2,6 +2,7 @@ package com.mtvu.identityauthorizationserver.service;
 
 import com.mtvu.identityauthorizationserver.auth.UserDetailsWithPasswordService;
 import com.mtvu.identityauthorizationserver.feign.UserClient;
+import com.mtvu.identityauthorizationserver.model.AuthUser;
 import com.mtvu.identityauthorizationserver.model.UserLoginType;
 import com.mtvu.identityauthorizationserver.record.ChatUserDTO;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -36,8 +38,16 @@ public class ChatUserService implements UserDetailsWithPasswordService {
     public UserDetails loadUserByUsernameAndPassword(String username, String password) {
         var accessToken = oAuth2Service.getDefaultClientAccessToken();
         var userDto = userClient.findUser("Bearer " + accessToken.getTokenValue(), username, password);
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new User(userDto.userId(), "", userDto.isActivated(), true, true,
-                !userDto.isLocked(), authorities);
+        return AuthUser.builder()
+                .subject(username)
+                .email(username)
+                .givenName(userDto.firstName())
+                .familyName(userDto.lastName())
+                .picture(userDto.avatar())
+                .emailVerified(userDto.isActivated())
+                .enabled(userDto.isActivated())
+                .accountNonLocked(!userDto.isLocked())
+                .build();
     }
+
 }

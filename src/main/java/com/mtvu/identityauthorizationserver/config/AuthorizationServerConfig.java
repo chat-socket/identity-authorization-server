@@ -229,5 +229,4 @@ public class AuthorizationServerConfig {
 				.issuer(issuer)
 				.build();
 	}
-
 }
