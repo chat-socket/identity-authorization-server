@@ -55,7 +55,7 @@ spring:
 
   security:
     cors:
-      whitelist: http://127.0.0.1:4200, http://chat-socket.io
+      whitelist: http://127.0.0.1:4200
     oauth2:
       server:
         issuer-uri: ${AUTH_SERVICE_ISSUER_URI:http://127.0.0.1:9000}
@@ -97,6 +97,6 @@ logging:
   level:
     root: INFO
     org.springframework.web: INFO
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     org.springframework.security.oauth2: INFO
 #    org.springframework.boot.autoconfigure: DEBUG
