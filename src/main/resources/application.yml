@@ -11,9 +11,9 @@ chat:
       identifier: web-client
       client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
       client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
-      grant-types: authorization_code, refresh_token
-      scopes: openid, groups:read, groups:write, profile:read, profile:write, message:read, message:write, offline_access
-      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:4200/index.html}
+      grant-types: authorization_code
+      scopes: openid, profile, groups:read, groups:write, profile:read, profile:write, message:read, message:write
+      redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:4200/callback.html, http://127.0.0.1:4200/silent-renew.html}
 
     -
       identifier: auth-service

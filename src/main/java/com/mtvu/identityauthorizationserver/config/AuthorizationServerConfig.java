@@ -52,6 +52,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -60,6 +61,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,11 +85,12 @@ public class AuthorizationServerConfig {
 
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain authorizationServerSecurityFilterChain(
+			HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
 		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
 		http.cors()
-				.configurationSource(corsConfigurationSource())
+				.configurationSource(corsConfigurationSource)
 			.and().getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .authorizationEndpoint(authorizationEndpoint ->
                 authorizationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI))
@@ -100,11 +103,16 @@ public class AuthorizationServerConfig {
 			.csrf()
 				.ignoringRequestMatchers(endpointsMatcher)
 			.and()
+				.headers()
+				.frameOptions()
+				.sameOrigin()
+			.and()
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 		http.apply(new FederatedIdentityConfigurer());
 		return http.build();
 	}
 
+	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOrigins(corsWhiteList);
@@ -116,6 +124,7 @@ public class AuthorizationServerConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/oauth2/**", config);
 		source.registerCorsConfiguration("/.well-known/**", config);
+		source.registerCorsConfiguration("/userinfo", config);
 
 		return source;
 	}
@@ -142,6 +151,10 @@ public class AuthorizationServerConfig {
 					.authorizationGrantTypes(x -> x.addAll(grantTypes))
 					.redirectUris(x -> x.addAll(properties.getRedirectUris()))
 					.scopes((x) -> x.addAll(properties.getScopes()))
+					.tokenSettings(TokenSettings.builder()
+							.accessTokenTimeToLive(Duration.ofMinutes(10))
+							.refreshTokenTimeToLive(Duration.ofHours(2))
+							.build())
 					.clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
 					.build();
 			registeredClientRepository.save(registeredClient);
@@ -216,5 +229,4 @@ public class AuthorizationServerConfig {
 				.issuer(issuer)
 				.build();
 	}
-
 }

@@ -22,9 +22,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.mtvu.identityauthorizationserver.model.AuthUser;
+import com.mtvu.identityauthorizationserver.service.ChatUserService;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -36,10 +43,11 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * the {@code id_token} produced by this authorization server.
  *
  * @author Steve Riesenberg
+ * @author mvu
  * @since 0.2.3
  */
-public final class FederatedIdentityIdTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
-
+@AllArgsConstructor
+public class FederatedIdentityIdTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 	private static final Set<String> ID_TOKEN_CLAIMS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
 			IdTokenClaimNames.ISS,
 			IdTokenClaimNames.SUB,
@@ -81,6 +89,9 @@ public final class FederatedIdentityIdTokenCustomizer implements OAuth2TokenCust
 		} else if (principal.getPrincipal() instanceof OAuth2User) {
 			OAuth2User oauth2User = (OAuth2User) principal.getPrincipal();
 			claims = oauth2User.getAttributes();
+		} else if (principal.getPrincipal() instanceof AuthUser) {
+			var authUser = (AuthUser) principal.getPrincipal();
+			claims = authUser.getClaims();
 		} else {
 			claims = Collections.emptyMap();
 		}
