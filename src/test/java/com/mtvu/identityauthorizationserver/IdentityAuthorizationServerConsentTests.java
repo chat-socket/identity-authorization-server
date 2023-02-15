@@ -53,7 +53,7 @@ public class IdentityAuthorizationServerConsentTests {
     @Autowired
     private WireMockServer mockUserService;
 
-    private final String redirectUri = "http://127.0.0.1:4200/index.html";
+    private final String redirectUri = "http://127.0.0.1:4200/callback.html";
 
     private final String authorizationRequestUri = UriComponentsBuilder
         .fromPath("/oauth2/authorize")

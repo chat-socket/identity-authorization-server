@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({WireMockConfigUserService.class})
 @AutoConfigureMockMvc
 public class IdentityAuthorizationServerAuthenticationTests {
-	private static final String REDIRECT_URI = "http://127.0.0.1:4200/index.html";
+	private static final String REDIRECT_URI = "http://127.0.0.1:4200/callback.html";
 
 	private static final String AUTHORIZATION_REQUEST = UriComponentsBuilder
 			.fromPath("/oauth2/authorize")
