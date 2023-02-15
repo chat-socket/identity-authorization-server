@@ -70,7 +70,7 @@ public class IdentityAuthorizationServerConsentTests {
         this.webClient.getOptions().setRedirectEnabled(true);
         this.webClient.getCookieManager().clearCookies();
         when(this.authorizationConsentService.findById(any(), any())).thenReturn(null);
-        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io", "password");
 
     }
 

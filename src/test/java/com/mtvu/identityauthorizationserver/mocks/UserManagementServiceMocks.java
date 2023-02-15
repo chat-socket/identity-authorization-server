@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Base64;
 
 public class UserManagementServiceMocks {
 
@@ -19,12 +20,15 @@ public class UserManagementServiceMocks {
             .addModule(new JavaTimeModule())
             .build();
 
-    public static void setupMockUserFindResponse(WireMockServer mockService, String username) throws IOException {
+    public static void setupMockUserFindResponse(WireMockServer mockService, String username, String password)
+            throws IOException {
         var user = new ChatUserDTO.Response.Public(username, "Manh Tu", "VU", UserLoginType.EMAIL,
                 "", true, false, OffsetDateTime.now());
+        String valueToEncode = username + ":" + password;
+        var credential = "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
+
         mockService.stubFor(WireMock.get(WireMock.urlEqualTo("/api/user/find"))
-                        .withHeader("FindUser", WireMock.equalTo(username))
-                        .withHeader("FindPwd", WireMock.equalTo("password"))
+                        .withHeader("X-User-Credential", WireMock.equalTo(credential))
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)

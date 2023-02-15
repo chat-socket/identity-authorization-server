@@ -20,10 +20,9 @@ public interface UserClient {
                                          ChatUserDTO.Request.Create userData);
 
     @RequestLine("GET /api/user/find")
-    @Headers({"FindUser: {username}", "FindPwd: {password}"})
+    @Headers({"X-User-Credential: {user_credential}"})
     ChatUserDTO.Response.Public findUser(@Param("access_token") String accessToken,
-                                         @Param("username") String username,
-                                         @Param("password") String password);
+                                         @Param("user_credential") String credential);
 
     @RequestLine("PUT /api/user/password")
     ChatUserDTO.Response.Public changeUserPassword(@Param("access_token") String accessToken,

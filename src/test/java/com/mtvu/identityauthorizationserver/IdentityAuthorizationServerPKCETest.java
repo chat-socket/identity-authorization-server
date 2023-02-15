@@ -63,7 +63,7 @@ public class IdentityAuthorizationServerPKCETest {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);
         webClient.getOptions().setRedirectEnabled(true);
         webClient.getCookieManager().clearCookies();	// log out
-        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io");
+        UserManagementServiceMocks.setupMockUserFindResponse(mockUserService, "user@chat-socket.io", "password");
     }
 
     @Test

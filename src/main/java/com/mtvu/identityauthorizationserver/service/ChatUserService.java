@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,9 @@ public class ChatUserService implements UserDetailsWithPasswordService {
     @Override
     public UserDetails loadUserByUsernameAndPassword(String username, String password) {
         var accessToken = oAuth2Service.getDefaultClientAccessToken();
-        var userDto = userClient.findUser("Bearer " + accessToken.getTokenValue(), username, password);
+        String valueToEncode = username + ":" + password;
+        var credential = "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
+        var userDto = userClient.findUser("Bearer " + accessToken.getTokenValue(), credential);
         return AuthUser.builder()
                 .subject(username)
                 .email(username)
