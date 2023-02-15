@@ -107,7 +107,7 @@ public class IdentityAuthorizationServerAuthenticationTests {
 
 		HtmlElement alert = loginErrorPage.querySelector("div[role=\"alert\"]");
 		assertThat(alert).isNotNull();
-		assertThat(alert.getTextContent().strip()).isEqualTo("Invalid username or password.");
+		assertThat(alert.getTextContent().strip()).isEqualTo("Invalid username or password !");
 	}
 
 	@Test

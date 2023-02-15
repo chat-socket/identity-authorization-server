@@ -75,13 +75,13 @@
                                 <small>Or sign in with credentials</small>
                             </div>
                             <form method="post" th:action="@{/login}">
-                                <div th:if="${param.error}" class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500">
+                                <div th:if="${param.error}" class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500" role="alert">
                                     <span class="inline-block align-middle mr-8">
                                         Invalid username or password !
                                     </span>
                                 </div>
 
-                                <div th:if="${param.logout}" class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-teal-500">
+                                <div th:if="${param.logout}" class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-teal-500" role="alert">
                                     <span class="inline-block align-middle mr-8">
                                         You have been logged out.
                                     </span>
