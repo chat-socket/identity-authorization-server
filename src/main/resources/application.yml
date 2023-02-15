@@ -12,7 +12,7 @@ chat:
       client-id: ${CHAT_CLIENT_ID:chat-web-client-id}
       client-secret: ${CHAT_CLIENT_SECRET:{noop}web-client-secret}
       grant-types: authorization_code
-      scopes: openid, profile, groups:read, groups:write, profile:read, profile:write, message:read, message:write
+      scopes: openid, profile, group:user:read, group:user:write, profile:user:read, profile:user:write, message:user:read, message:user:write
       redirect-uris: ${CHAT_CLIENT_REDIRECT_URI:http://127.0.0.1:4200/callback.html, http://127.0.0.1:4200/silent-renew.html}
 
     -
@@ -20,7 +20,7 @@ chat:
       client-id: ${AUTH_CLIENT_ID:auth-service-client-id}
       client-secret: ${AUTH_CLIENT_SECRET:{noop}auth-service-client-secret}
       grant-types: client_credentials
-      scopes: user:create, user:find
+      scopes: profile:sys:create, profile:sys:find
       redirect-uris:
 
   auth:
@@ -30,7 +30,7 @@ chat:
       client-id: ${AUTH_CLIENT_ID:auth-service-client-id}
       client-secret: ${AUTH_CLIENT_SECRET:auth-service-client-secret}
       grant-type: client_credentials
-      scopes: user:create, user:find
+      scopes: profile:sys:create, profile:sys:find
 
 
 spring:
