@@ -4,14 +4,14 @@ WORKDIR /app
 # 1. Download the gradle distribution
 COPY gradlew ./
 COPY gradle/ gradle/
-RUN ./gradlew --version
+RUN sh gradlew --version
 
 WORKDIR /app
 
 # 2. Resolve dependencies for the util and api projects
 COPY settings.gradle ./
 COPY build.gradle ./
-RUN ./gradlew dependencies
+RUN sh gradlew dependencies
 
 COPY src src
 
@@ -46,7 +46,7 @@ RUN jlink --verbose \
 
 
 # take a smaller runtime image for the final output
-ROM alpine:latest
+FROM alpine:latest
 WORKDIR /deployment
 
 # copy the custom JRE produced from jlink

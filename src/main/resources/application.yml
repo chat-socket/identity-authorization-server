@@ -23,6 +23,14 @@ chat:
       scopes: profile:sys:create, profile:sys:find
       redirect-uris:
 
+    -
+      identifier: user-management-service
+      client-id: ${USER_MANAGEMENT_CLIENT_ID:user-management-client-id}
+      client-secret: ${USER_MANAGEMENT_SECRET:{noop}user-management-client-secret}
+      grant-types: client_credentials
+      scopes: profile:sys:create, profile:sys:find
+      redirect-uris:
+
   auth:
     provider:
       identifier: auth-service
