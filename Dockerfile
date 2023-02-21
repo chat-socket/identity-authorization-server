@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-jammy AS deps-build
+FROM openjdk:18-slim AS deps-build
 WORKDIR /app
 
 # 1. Download the gradle distribution
@@ -36,6 +36,11 @@ RUN jdeps \
 # pipe the result of running jdeps on the app jar to file
 build/libs/app.jar > jre-deps.info
 
+FROM openjdk:17-alpine AS jre-build
+WORKDIR /app
+
+COPY --from=deps-build /app/jre-deps.info jre-deps.info
+
 RUN jlink --verbose \
 --compress 2 \
 --strip-java-debug-attributes \
@@ -46,11 +51,11 @@ RUN jlink --verbose \
 
 
 # take a smaller runtime image for the final output
-FROM alpine:latest
+FROM alpine:3.16.2
 WORKDIR /deployment
 
 # copy the custom JRE produced from jlink
-COPY --from=deps-build /app/jre jre
+COPY --from=jre-build /app/jre jre
 
 # copy the app dependencies
 COPY --from=deps-build /app/build/dist dist
