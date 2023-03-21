@@ -222,7 +222,14 @@ public class AuthorizationServerConfig {
 	}
 
 	@Bean
-	public JwtDecoder jwtDecoder() {
-		return new JwtMultiIssuerDecoder(externalIssuer, internalIssuer);
+	public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+		return new JwtMultiIssuerDecoder(jwkSource, externalIssuer, internalIssuer);
 	}
+
+	@Bean
+	public AuthorizationServerSettings authorizationServerSettings() {
+		return AuthorizationServerSettings.builder()
+				.build();
+	}
+
 }

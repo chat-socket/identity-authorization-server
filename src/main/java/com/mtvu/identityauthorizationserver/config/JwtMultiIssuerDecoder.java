@@ -1,6 +1,9 @@
 package com.mtvu.identityauthorizationserver.config;
 
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 
 /**
  * In this class, we try to solve the problem of OAuth2 issuer verification
@@ -18,11 +21,12 @@ public class JwtMultiIssuerDecoder implements JwtDecoder {
     private final NimbusJwtDecoder internalDecoder;
     private final NimbusJwtDecoder publicDecoder;
 
-    public JwtMultiIssuerDecoder(String internalUri, String publicUri){
-        internalDecoder = JwtDecoders.fromIssuerLocation(internalUri);
+    public JwtMultiIssuerDecoder(JWKSource<SecurityContext> jwkSource, String internalUri, String publicUri){
+        internalDecoder = (NimbusJwtDecoder) OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+        internalDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(internalUri));
         // This is not an error!!!
         // We need to init the public decoder from the internal URI - the publicUri might not be reachable by this server!
-        publicDecoder = JwtDecoders.fromIssuerLocation(internalUri);
+        publicDecoder = (NimbusJwtDecoder) OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
         publicDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(publicUri));
     }
 
