@@ -77,8 +77,11 @@ import java.util.Set;
 public class AuthorizationServerConfig {
     private static final String CUSTOM_CONSENT_PAGE_URI = "/oauth2/consent";
 
-	@Value("${spring.security.oauth2.server.issuer-uri}")
-	private String issuer;
+	@Value("${spring.security.oauth2.server.external-issuer-uri}")
+	private String externalIssuer;
+
+	@Value("${spring.security.oauth2.server.internal-issuer-uri}")
+	private String internalIssuer;
 
 	@Value("${spring.security.cors.whitelist}")
 	private List<String> corsWhiteList;
@@ -219,14 +222,7 @@ public class AuthorizationServerConfig {
 	}
 
 	@Bean
-	public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-		return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-	}
-
-	@Bean
-	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder()
-				.issuer(issuer)
-				.build();
+	public JwtDecoder jwtDecoder() {
+		return new JwtMultiIssuerDecoder(externalIssuer, internalIssuer);
 	}
 }

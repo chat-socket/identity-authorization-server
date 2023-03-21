@@ -34,7 +34,7 @@ chat:
   auth:
     provider:
       identifier: auth-service
-      token-uri: http://127.0.0.1:${server.port}/oauth2/token
+      token-uri: ${AUTH_INTERNAL_ISSUER_URI}/oauth2/token
       client-id: ${AUTH_CLIENT_ID:auth-service-client-id}
       client-secret: ${AUTH_CLIENT_SECRET:auth-service-client-secret}
       grant-type: client_credentials
@@ -66,7 +66,8 @@ spring:
       whitelist: http://127.0.0.1:4200, http://chat-socket.io
     oauth2:
       server:
-        issuer-uri: ${AUTH_SERVICE_ISSUER_URI:http://127.0.0.1:9000}
+        external-issuer-uri: ${AUTH_EXTERNAL_ISSUER_URI:http://127.0.0.1:9000}
+        internal-issuer-uri: ${AUTH_INTERNAL_ISSUER_URI:http://127.0.0.1:9000}
       client:
         registration:
           google-idp:
