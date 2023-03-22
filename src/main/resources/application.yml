@@ -37,7 +37,7 @@ spring:
   application:
     name: identity-authorization-server
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:3306/${POSTGRES_DB:identity-authorization-db}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:3306}/${POSTGRES_DB:identity-authorization-db}
     username: ${POSTGRES_USER:username}
     password: ${POSTGRES_PASSWORD:password}
   jpa:
